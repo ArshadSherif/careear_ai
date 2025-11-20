@@ -8,7 +8,7 @@ from app.routers import (
     assessment_router,
     jd_router,
     resume_router,
-    soft_skills_questions
+    soft_skills_questions_router
 )
 
 @asynccontextmanager
@@ -40,7 +40,7 @@ app.add_middleware(
 app.include_router(assessment_router.router, prefix="/assessment", tags=["Assessment"])
 app.include_router(jd_router.router, prefix="/jd", tags=["Job Description"])
 app.include_router(resume_router.router, prefix="/resume", tags=["Resume"])
-app.include_router(soft_skills_questions.router, prefix="/questions", tags=["Questions"])
+app.include_router(soft_skills_questions_router.router, prefix="/questions", tags=["Questions"])
 
 @app.get("/")
 def healthcheck():
