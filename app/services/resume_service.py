@@ -66,9 +66,23 @@ async def handle_upload(db: Session, file, session_id: str) -> models.Resume:
     return db_resume
 
 
-def list_resumes(db: Session, skip: int, limit: int):
-    return db.query(models.Resume).offset(skip).limit(limit).all()
+def list_resumes(db: Session, session_id: str, skip: int, limit: int):
+    return (
+        db.query(models.Resume)
+        .filter(models.Resume.session_id == session_id)
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
 
 
-def get_resume(db: Session, resume_id: int):
-    return db.query(models.Resume).filter(models.Resume.id == resume_id).first()
+def get_resume(db: Session, resume_id: int, session_id: str):
+    return (
+        db.query(models.Resume)
+        .filter(
+            models.Resume.id == resume_id,
+            models.Resume.session_id == session_id
+        )
+        .first()
+    )
+
