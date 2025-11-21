@@ -2,22 +2,21 @@ from app.ai.gemini_client import run_json_prompt
 import json
 
 PROMPT = """
-You receive extracted resume text.
-You must output ONLY strict JSON with the following fields:
+You must extract skills, traits, domains, and experience from resume text.
 
+Scoring rules:
+- 1.0 = explicitly mentioned or strongly evidenced
+- 0.5 = implicitly suggested or weak evidence
+- 0.0 = not present
+
+Output JSON:
 {
-  "skills": {...},
-  "traits": {...},
-  "domains": {...},
-  "experience": {...}
+  "skills": { "SkillName": score, ... },
+  "traits": { "TraitName": score, ... },
+  "domains": { "DomainName": score, ... },
+  "experience": { "ExperienceItem": score, ... }
 }
 
-Rules:
-- No narrative.
-- No subjective text.
-- Only numeric values between 0 and 1.
-- Keep field names EXACT.
-- Do not include any additional fields.
 
 Resume text:
 <<<RESUME>>>

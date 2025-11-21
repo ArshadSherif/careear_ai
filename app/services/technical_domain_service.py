@@ -2,7 +2,7 @@
 
 from sqlalchemy.orm import Session
 from app.db import models
-from app.ai.domain_classifier import classify_domain_ai
+from app.services.ai_services.domain_classifer import classify_domain_ai
 
 
 def load_all_domain_names(db: Session) -> list[str]:
@@ -37,7 +37,7 @@ def load_soft_domains(db: Session, session_id: str) -> dict:
     return row.result if row else {}
 
 
-async def derive_technical_domain(db: Session, session_id: str):
+def derive_technical_domain(db: Session, session_id: str):
     # Load signals
     resume_domains = load_resume_domains(db, session_id)
     jd_domains = load_jd_domains(db, session_id)
@@ -58,15 +58,8 @@ async def derive_technical_domain(db: Session, session_id: str):
     if selected_domain not in allowed_domains:
         raise ValueError(f"AI returned invalid domain: {selected_domain}")
 
-    # Fetch technical tree
-    row = (
-        db.query(models.TechnicalDomainQuestions)
-        .filter(models.TechnicalDomainQuestions.domain_name == selected_domain)
-        .first()
-    )
 
     return {
         "session_id": session_id,
         "selected_domain": selected_domain,
-        "tree": row.tree if row else {}
     }
