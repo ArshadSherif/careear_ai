@@ -32,11 +32,12 @@ app = FastAPI(title="SkillDesk", version="1.0.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=os.getenv("CORS_ALLOW_ORIGINS", "*").split(","),
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 app.include_router(assessment_router.router, prefix="/assessment", tags=["Assessment"])
 app.include_router(jd_router.router, prefix="/jd", tags=["Job Description"])

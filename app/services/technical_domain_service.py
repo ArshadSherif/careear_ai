@@ -63,3 +63,22 @@ def derive_technical_domain(db: Session, session_id: str):
         "session_id": session_id,
         "selected_domain": selected_domain,
     }
+
+def get_domain_tree_service(db: Session, domain_name: str):
+    row = (
+        db.query(models.TechnicalDomainQuestions)
+        .filter(models.TechnicalDomainQuestions.domain_name == domain_name)
+        .first()
+    )
+
+    if not row:
+        return {
+            "domain_name": domain_name,
+            "tree": None,
+            "error": "Domain not found"
+        }
+
+    return {
+        "domain_name": domain_name,
+        "tree": row.tree
+    }
