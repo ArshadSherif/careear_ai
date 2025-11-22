@@ -1,15 +1,13 @@
 from app.ai.gemini_client import run_json_prompt
 import json
 
-
 PROMPT = """
-You are a strict domain classifier.
+You are a strict domain scorer.
 
-You must choose ONE domain from this approved list:
+You must evaluate ALL domains from this approved list:
 <<<DOMAIN_LIST>>>
 
-You are given three inputs:
-
+Inputs:
 resume_domains:
 <<<RESUME_DOMAINS>>>
 
@@ -19,15 +17,21 @@ jd_domains:
 soft_skill_domains:
 <<<SOFT_DOMAINS>>>
 
-Rules:
-- You must output ONLY strict JSON:
+Output format (strict JSON):
 {
-  "domain": "<one_exact_domain_from_list>"
+  "scores": {
+      "<domain1>": <float>,
+      "<domain2>": <float>,
+      ...
+  }
 }
-- No explanation.
-- No extra keys.
-- Never invent domain names.
-- The domain MUST be exactly one of the items from <<<DOMAIN_LIST>>>.
+
+Rules:
+- Include ALL domains from <<<DOMAIN_LIST>>>.
+- Scores must be numeric.
+- No explanations.
+- No missing or extra keys.
+- Never invent domains.
 """
 
 def classify_domain_ai(
@@ -35,7 +39,7 @@ def classify_domain_ai(
     jd_domains: dict,
     soft_domains: dict,
     domain_list: list[str]
-) -> str:
+) -> dict:
     prompt = (
         PROMPT
         .replace("<<<DOMAIN_LIST>>>", json.dumps(domain_list))
@@ -46,4 +50,6 @@ def classify_domain_ai(
 
     raw = run_json_prompt(prompt)
     data = json.loads(raw)
-    return data["domain"]
+
+    return data["scores"]       # dict of {domain: score}
+

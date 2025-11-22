@@ -38,31 +38,36 @@ def load_soft_domains(db: Session, session_id: str) -> dict:
 
 
 def derive_technical_domain(db: Session, session_id: str):
-    # Load signals
     resume_domains = load_resume_domains(db, session_id)
     jd_domains = load_jd_domains(db, session_id)
     soft_domains = load_soft_domains(db, session_id)
-
-    # Load allowed domain list (27)
     allowed_domains = load_all_domain_names(db)
 
-    # AI picks the best domain
-    selected_domain = classify_domain_ai(
+    # AI now returns scores for all domains
+    scores = classify_domain_ai(
         resume_domains,
         jd_domains,
         soft_domains,
         allowed_domains
     )
+    # scores format: {"Computer & Data Science": 0.92, "Engineering": 0.87, ...}
 
-    # Safety validation
-    if selected_domain not in allowed_domains:
-        raise ValueError(f"AI returned invalid domain: {selected_domain}")
+    ranked = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+    top3 = ranked[:3]
 
+    # Validate each domain exists in allowed list
+    for d, _ in top3:
+        if d not in allowed_domains:
+            raise ValueError(f"AI returned invalid domain: {d}")
 
     return {
         "session_id": session_id,
-        "selected_domain": selected_domain,
+        "top_domains": [
+            {"domain": d, "score": s}
+            for d, s in top3
+        ]
     }
+
 
 def get_domain_tree_service(db: Session, domain_name: str):
     row = (
